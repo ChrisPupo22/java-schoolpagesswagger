@@ -1,8 +1,12 @@
 package com.lambdaschool.school.controller;
 
+import com.lambdaschool.school.model.Course;
 import com.lambdaschool.school.model.Student;
 import com.lambdaschool.school.service.StudentService;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +27,18 @@ public class StudentController
 
     // Please note there is no way to add students to course yet!
 
+    @GetMapping(value = "/student/paging",
+            produces = {"application/json"})
+    public ResponseEntity<?> listAllStudentsByPage(
+            @ApiParam(value = "Listing all students by page")
+            @PageableDefault(page = 0, size = 3) Pageable pageable) {
+
+        List<Student> myPageableCourses = studentService.findAllPageable(pageable);
+        return new ResponseEntity<>(myPageableCourses, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/students", produces = {"application/json"})
-    public ResponseEntity<?> listAllStudents()
+    public ResponseEntity<?> listAllStudents(@ApiParam(value = "Lists all students") Pageable pageable)
     {
         List<Student> myStudents = studentService.findAll();
         return new ResponseEntity<>(myStudents, HttpStatus.OK);
@@ -33,6 +47,7 @@ public class StudentController
     @GetMapping(value = "/Student/{StudentId}",
                 produces = {"application/json"})
     public ResponseEntity<?> getStudentById(
+            @ApiParam(value = "Get student by ID", required = true, example = "3")
             @PathVariable
                     Long StudentId)
     {
@@ -44,6 +59,7 @@ public class StudentController
     @GetMapping(value = "/student/namelike/{name}",
                 produces = {"application/json"})
     public ResponseEntity<?> getStudentByNameContaining(
+            @ApiParam(value = "get student by name containing..")
             @PathVariable String name)
     {
         List<Student> myStudents = studentService.findStudentByNameLike(name);
@@ -55,6 +71,7 @@ public class StudentController
                  consumes = {"application/json"},
                  produces = {"application/json"})
     public ResponseEntity<?> addNewStudent(@Valid
+                                            @ApiParam(value ="posts new student", required = true)
                                            @RequestBody
                                                    Student newStudent) throws URISyntaxException
     {
@@ -71,6 +88,7 @@ public class StudentController
 
     @PutMapping(value = "/Student/{Studentid}")
     public ResponseEntity<?> updateStudent(
+            @ApiParam(value = "updates student ID", required = true, example = "22")
             @RequestBody
                     Student updateStudent,
             @PathVariable
@@ -83,6 +101,7 @@ public class StudentController
 
     @DeleteMapping("/Student/{Studentid}")
     public ResponseEntity<?> deleteStudentById(
+            @ApiParam(value = "Deletes student by ID", required = true, example = "4")
             @PathVariable
                     long Studentid)
     {
